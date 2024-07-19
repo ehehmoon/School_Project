@@ -3,9 +3,10 @@ import chess
 import chess.engine
 from PIL import Image, ImageTk
 import os
+from plyer import notification
 
 class ChessAI:
-    def __init__(self, depth=3, engine_path='C:/Users/user/Documents/DEV/Python/School/stockfish/stockfish-windows-x86-64-avx2.exe'):
+    def __init__(self, depth = 3, engine_path = 'C:/Users/user/Documents/DEV/Python/School/stockfish/stockfish-windows-x86-64-avx2.exe'):
         self.depth = depth
         self.engine = chess.engine.SimpleEngine.popen_uci(engine_path)
 
@@ -89,12 +90,8 @@ class ChessApp:
             self.canvas.create_text(240, 510, text=f"체크메이트! {turn} 패배!", fill="red", font=("맑은 고딕(본문)", 15, "bold"))
 
         elif self.board.is_stalemate():
-            if turn == "White":
-                self.root.title("체스 게임 - 패배하셨습니다")
-            else:
-                self.root.title("체스 게임 - 승리하셨습니다")
-
-            self.canvas.create_text(240, 510, text=f"스타일메이트! {turn} 패배!", fill="blue", font=("맑은 고딕(본문)", 15, "bold"))
+            self.root.title("체스 게임 - 무승부입니다")
+            self.canvas.create_text(240, 510, text=f"스타일메이트! 무승부!", fill="blue", font=("맑은 고딕(본문)", 15, "bold"))
 
     def on_click(self, event):
         if self.board.is_game_over():
@@ -112,6 +109,14 @@ class ChessApp:
                 self.update_board()
                 if not self.board.is_game_over():
                     self.make_ai_move()
+            else:
+                notification.notify(
+                    title = '경고',
+                    message = '유효하지 않은 움직임입니다.',
+                    app_name = 'Chess',
+                    app_icon = 'C:/Users/user/Documents/DEV/Python/School/images/chess_icon.ico',
+                    timeout = 5,
+                )
             self.move_from = None
         else:
             piece = self.board.piece_at(square)
@@ -127,3 +132,4 @@ class ChessApp:
 root = tk.Tk()
 app = ChessApp(root)
 root.mainloop()
+
