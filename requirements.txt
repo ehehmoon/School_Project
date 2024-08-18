@@ -1,5 +1,5 @@
 tkinter
 pillow
 python-chess
-stockfish(stockfish developer 공홈에서 다운로드)
+stockfish #stockfish developer 공홈에서 다운로드: https://github.com/official-stockfish/Stockfish/releases/latest/download/stockfish-windows-x86-64-avx2.zip
 plyer
