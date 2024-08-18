@@ -6,7 +6,7 @@ import os
 from plyer import notification
 
 class ChessAI:
-    def __init__(self, depth = 3, engine_path = 'C:/Users/user/Documents/DEV/Python/School/stockfish/stockfish-windows-x86-64-avx2.exe'):
+    def __init__(self, depth = 3, engine_path = 'stockfish/stockfish-windows-x86-64-avx2.exe'):
         self.depth = depth
         self.engine = chess.engine.SimpleEngine.popen_uci(engine_path)
 
@@ -35,7 +35,7 @@ class ChessApp:
         self.game_frame = tk.Frame(root)
         
         self.board = chess.Board()
-        self.ai = ChessAI(depth=3, engine_path='C:/Users/user/Documents/DEV/Python/School/stockfish/stockfish-windows-x86-64-avx2.exe')
+        self.ai = ChessAI(depth=3, engine_path='stockfish/stockfish-windows-x86-64-avx2.exe')
 
         self.canvas = tk.Canvas(self.game_frame, width=480, height=520)
         self.canvas.pack()
@@ -114,7 +114,7 @@ class ChessApp:
                     title = '경고',
                     message = '유효하지 않은 움직임입니다.',
                     app_name = 'Chess',
-                    app_icon = 'C:/Users/user/Documents/DEV/Python/School/images/chess_icon.ico',
+                    app_icon = 'images/chess_icon.ico',
                     timeout = 5,
                 )
             self.move_from = None
