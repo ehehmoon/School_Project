@@ -94,7 +94,7 @@ class TicTacToe:
                 messagebox.showinfo("게임 종료", "무승부!")
             self.root.quit()
         else:
-            status = "느그차례" if self.turn == 'player' else "컴차례"
+            status = "당신차례" if self.turn == 'player' else "컴차례"
             self.root.title(f"틱택토 - {status}")
 
     def on_click(self, index):
