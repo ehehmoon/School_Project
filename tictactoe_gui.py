@@ -89,13 +89,14 @@ class TicTacToe:
         if game_over(game_board):
             winner = 'X' if check_win(game_board, 'X') else 'O' if check_win(game_board, 'O') else '무승부'
             if winner != '무승부':
-                messagebox.showinfo("게임 종료", f"{winner} 승리!")
+                messagebox.showinfo("게임 종료", f"{self.turn} 패배!")
             else:
                 messagebox.showinfo("게임 종료", "무승부!")
             self.root.quit()
         else:
-            status = "당신차례" if self.turn == 'player' else "컴차례"
+            status = "player" if self.turn == 'player' else "COM"
             self.root.title(f"틱택토 - {status}")
+            
 
     def on_click(self, index):
         if self.turn == 'player' and valid_move(game_board, index):
@@ -120,5 +121,4 @@ class TicTacToe:
 root = tk.Tk()
 app = TicTacToe(root)
 root.mainloop()
-
 
