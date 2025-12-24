@@ -50,6 +50,7 @@ class ChessApp:
         self.start_frame.pack_forget()
         self.game_frame.pack()
         self.update_board()
+        
     def load_images(self):
         pieces = ['br', 'bn', 'bb', 'bq', 'bk', 'bp', 'wr', 'wn', 'wb', 'wq', 'wk', 'wp']
         base_path = os.path.dirname(os.path.abspath(__file__))
@@ -62,12 +63,28 @@ class ChessApp:
             except FileNotFoundError:
                 print(f"주의: {piece}를 위한 이미지 파일이 존재하지 않음.")
 
+    def show_check_notification(self):
+        """체크 상태일 때 알림 표시"""
+        turn = "White" if self.board.turn else "Black"
+        notification.notify(
+            title='체크!',
+            message=f'{turn}이(가) 체크 상태입니다!',
+            app_name='Chess',
+            app_icon='images/ban.ico',
+            timeout=5,
+        )
+
     def update_board(self):
         self.canvas.delete("all")
         for i in range(64):
             x = (i % 8) * 60
             y = (7 - (i // 8)) * 60
             color = "white" if (i + i // 8) % 2 == 0 else "gray"
+            
+            # 선택된 기물 하이라이트
+            if self.move_from is not None and i == self.move_from:
+                color = "lightblue"
+            
             self.canvas.create_rectangle(x, y, x + 60, y + 60, fill=color)
 
             piece = self.board.piece_at(i)
@@ -77,6 +94,14 @@ class ChessApp:
                 piece_image = self.images.get(color + piece_symbol)
                 if piece_image:
                     self.canvas.create_image(x + 30, y + 30, image=piece_image)
+        
+        # 이동 가능한 위치에 노란 원 표시
+        if self.move_from is not None:
+            for move in self.board.legal_moves:
+                if move.from_square == self.move_from:
+                    target_x = (move.to_square % 8) * 60
+                    target_y = (7 - (move.to_square // 8)) * 60
+                    self.canvas.create_oval(target_x + 20, target_y + 20, target_x + 40, target_y + 40, fill="#ffffaa", outline="")
 
         turn = "White" if self.board.turn else "Black"
         self.canvas.create_text(240, 490, text=f"차례: {turn}", fill="black")
@@ -92,6 +117,10 @@ class ChessApp:
         elif self.board.is_stalemate():
             self.root.title("체스 게임 - 무승부입니다")
             self.canvas.create_text(240, 510, text=f"스타일메이트! 무승부!", fill="blue", font=("맑은 고딕(본문)", 15, "bold"))
+        
+        # 체크 상태 확인 및 알림
+        elif self.board.is_check():
+            self.show_check_notification()
 
     def on_click(self, event):
         if self.board.is_game_over():
@@ -106,6 +135,7 @@ class ChessApp:
             move = chess.Move(self.move_from, square)
             if move in self.board.legal_moves:
                 self.board.push(move)
+                self.move_from = None
                 self.update_board()
                 if not self.board.is_game_over():
                     self.make_ai_move()
@@ -114,14 +144,16 @@ class ChessApp:
                     title = '경고',
                     message = '유효하지 않은 움직임입니다.',
                     app_name = 'Chess',
-                    app_icon = 'images/chess_icon.ico',
+                    app_icon = 'images/ban.ico',
                     timeout = 5,
                 )
-            self.move_from = None
+                self.move_from = None
+                self.update_board()
         else:
             piece = self.board.piece_at(square)
             if piece is not None and piece.color == self.board.turn:
                 self.move_from = square
+                self.update_board()
 
     def make_ai_move(self):
         ai_move = self.ai.get_best_move(self.board)
@@ -132,4 +164,3 @@ class ChessApp:
 root = tk.Tk()
 app = ChessApp(root)
 root.mainloop()
-
