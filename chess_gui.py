@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter import simpledialog
 import chess
 import chess.engine
 from PIL import Image, ImageTk
@@ -6,7 +7,7 @@ import os
 from plyer import notification
 
 class ChessAI:
-    def __init__(self, depth = 3, engine_path = 'stockfish/stockfish-windows-x86-64-avx2.exe'):
+    def __init__(self, depth = 20, engine_path = 'stockfish/stockfish-windows-x86-64-avx2.exe'):
         self.depth = depth
         self.engine = chess.engine.SimpleEngine.popen_uci(engine_path)
 
@@ -21,21 +22,27 @@ class ChessApp:
     def __init__(self, root):
         self.root = root
         self.root.title("체스 게임")
-        self.root.geometry("480x520")  # 전체 창 크기 설정
+        self.root.geometry("480x520")
         
         self.start_frame = tk.Frame(root, width=480, height=520)
         self.start_frame.pack(expand=True, fill=tk.BOTH)
         
         self.title_label = tk.Label(self.start_frame, text="체스 게임!", font=("맑은 고딕(본문)", 48, "bold"))
-        self.title_label.pack(pady=100)
+        self.title_label.pack(pady=80)
         
-        self.start_button = tk.Button(self.start_frame, text="시작하기", command=self.start_game, font=("맑은 고딕(본문)", 24), padx=20, pady=10)
-        self.start_button.pack(pady=50)
+        self.easy_button = tk.Button(self.start_frame, text="EASY", command=lambda: self.start_game("EASY"), font=("맑은 고딕(본문)", 20), padx=20, pady=10, width=15)
+        self.easy_button.pack(pady=10)
+        
+        self.normal_button = tk.Button(self.start_frame, text="NORMAL", command=lambda: self.start_game("NORMAL"), font=("맑은 고딕(본문)", 20), padx=20, pady=10, width=15)
+        self.normal_button.pack(pady=10)
+        
+        self.hard_button = tk.Button(self.start_frame, text="HARD", command=lambda: self.start_game("HARD"), font=("맑은 고딕(본문)", 20), padx=20, pady=10, width=15)
+        self.hard_button.pack(pady=10)
         
         self.game_frame = tk.Frame(root)
         
         self.board = chess.Board()
-        self.ai = ChessAI(depth=3, engine_path='stockfish/stockfish-windows-x86-64-avx2.exe')
+        self.ai = ChessAI(depth=20, engine_path='stockfish/stockfish-windows-x86-64-avx2.exe')
 
         self.canvas = tk.Canvas(self.game_frame, width=480, height=520)
         self.canvas.pack()
@@ -45,8 +52,18 @@ class ChessApp:
         self.load_images()
         
         self.move_from = None
+        self.last_check_state = False
 
-    def start_game(self):
+    def start_game(self, difficulty):
+        # 학번과 이름 입력 받기
+        info = simpledialog.askstring("정보 입력", "학번과 이름을 입력하세요 (예: 20241234 홍길동):")
+        if not info:
+            return
+        
+        # 텍스트 파일에 저장
+        with open("player_info.txt", "a", encoding="utf-8") as f:
+            f.write(f"난이도: {difficulty}, {info}\n")
+        
         self.start_frame.pack_forget()
         self.game_frame.pack()
         self.update_board()
@@ -95,7 +112,7 @@ class ChessApp:
                 if piece_image:
                     self.canvas.create_image(x + 30, y + 30, image=piece_image)
         
-        # 이동 가능한 위치에 노란 원 표시
+        
         if self.move_from is not None:
             for move in self.board.legal_moves:
                 if move.from_square == self.move_from:
@@ -118,9 +135,13 @@ class ChessApp:
             self.root.title("체스 게임 - 무승부입니다")
             self.canvas.create_text(240, 510, text=f"스타일메이트! 무승부!", fill="blue", font=("맑은 고딕(본문)", 15, "bold"))
         
-        # 체크 상태 확인 및 알림
+        
         elif self.board.is_check():
-            self.show_check_notification()
+            if not self.last_check_state:
+                self.show_check_notification()
+                self.last_check_state = True
+        else:
+            self.last_check_state = False
 
     def on_click(self, event):
         if self.board.is_game_over():
