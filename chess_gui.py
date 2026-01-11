@@ -55,12 +55,10 @@ class ChessApp:
         self.last_check_state = False
 
     def start_game(self, difficulty):
-        # 학번과 이름 입력 받기
         info = simpledialog.askstring("정보 입력", "학번과 이름을 입력하세요 (예: 20241234 홍길동):")
         if not info:
             return
         
-        # 텍스트 파일에 저장
         with open("player_info.txt", "a", encoding="utf-8") as f:
             f.write(f"난이도: {difficulty}, {info}\n")
         
@@ -185,3 +183,4 @@ class ChessApp:
 root = tk.Tk()
 app = ChessApp(root)
 root.mainloop()
+
